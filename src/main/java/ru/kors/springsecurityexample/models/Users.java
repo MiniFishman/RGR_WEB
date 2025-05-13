@@ -17,5 +17,6 @@ public class Users {
     private String email;
     @Column(name = "password_hash")
     private String password;
-    private String role;
+    private String role = "ROLE_USER";
 }
+

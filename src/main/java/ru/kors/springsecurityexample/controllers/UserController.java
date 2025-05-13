@@ -9,7 +9,7 @@ import ru.kors.springsecurityexample.models.Users;
 import ru.kors.springsecurityexample.services.UserService;
 
 @RestController
-@RequestMapping("api/v1/apps")
+@RequestMapping("users")
 @AllArgsConstructor
 public class UserController {
     private final UserService service;

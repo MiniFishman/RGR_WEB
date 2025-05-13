@@ -2,6 +2,7 @@ package ru.kors.springsecurityexample.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -42,13 +43,15 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .requestMatchers("/api/v1/apps/welcome", "/api/v1/apps/register").permitAll()
-                        .requestMatchers("/api/v1/apps/1").hasAuthority("ROLE_USER")
-                        .requestMatchers("/api/v1/apps/2").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/users/register",
+                                "/category/get-all",
+                                "category/{id}").permitAll()
+                        .requestMatchers("/category/add-category",
+                                "/category/delete").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginProcessingUrl("/api/v1/apps/login")
+                        .loginProcessingUrl("/users/login")
                         .successHandler((request, response, authentication) ->
                                 response.getWriter().write("Login successful"))
                         .failureHandler((request, response, exception) ->
@@ -56,7 +59,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/api/v1/apps/logout")
+                        .logoutUrl("/users/logout")
                         .logoutSuccessHandler((request, response, authentication) ->
                                 response.getWriter().write("Logout successful"))
                         .invalidateHttpSession(true)
