@@ -1,0 +1,89 @@
+package ru.kors.springsecurityexample.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import ru.kors.springsecurityexample.repository.UserRepository;
+import ru.kors.springsecurityexample.services.MyUserDetailsService;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    private final UserRepository userRepository;
+
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-resources",
+            "/swagger-ui.html",
+            "/webjars/**"
+    };
+
+    public SecurityConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                        .requestMatchers("/api/v1/apps/welcome", "/api/v1/apps/register").permitAll()
+                        .requestMatchers("/api/v1/apps/1").hasAuthority("ROLE_USER")
+                        .requestMatchers("/api/v1/apps/2").hasAuthority("ROLE_ADMIN")
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginProcessingUrl("/api/v1/apps/login")
+                        .successHandler((request, response, authentication) ->
+                                response.getWriter().write("Login successful"))
+                        .failureHandler((request, response, exception) ->
+                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials"))
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/v1/apps/logout")
+                        .logoutSuccessHandler((request, response, authentication) ->
+                                response.getWriter().write("Logout successful"))
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
+                .build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new MyUserDetailsService(userRepository);
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
