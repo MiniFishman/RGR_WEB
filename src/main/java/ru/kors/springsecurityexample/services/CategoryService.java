@@ -3,7 +3,6 @@ package ru.kors.springsecurityexample.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.kors.springsecurityexample.models.Categories;
-import ru.kors.springsecurityexample.models.Users;
 import ru.kors.springsecurityexample.repository.CategoryRepository;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
-    public Optional<Categories> getCategoryById(int id) {
+    public Optional<Categories> getCategoryById(Integer id) {
         return categoryRepository.findById(id);
     }
 

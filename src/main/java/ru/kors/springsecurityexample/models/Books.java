@@ -3,7 +3,7 @@ package ru.kors.springsecurityexample.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -20,11 +20,11 @@ public class Books {
 
     private String description;
 
-    private String price;
+    private BigDecimal price;
 
-    @OneToMany
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
-    private List<Categories> categories;
+    private Categories categories;
 
     @Column(name = "cover_image")
     private byte[] image;

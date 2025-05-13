@@ -45,9 +45,13 @@ public class SecurityConfig {
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers("/users/register",
                                 "/category/get-all",
-                                "category/{id}").permitAll()
+                                "/category/{id}",
+                                "/book/all-books",
+                                "/book/{id}").permitAll()
                         .requestMatchers("/category/add-category",
-                                "/category/delete").hasAuthority("ROLE_ADMIN")
+                                "/category/delete",
+                                "/book/add-book",
+                                "book/update/{id}").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
