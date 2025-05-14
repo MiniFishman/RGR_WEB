@@ -1,14 +1,18 @@
 package ru.kors.springsecurityexample.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.annotations.ManyToAny;
+import lombok.NoArgsConstructor;
 
-import java.awt.print.Book;
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "cart_items")
 public class CartItems {
     @Id
@@ -16,11 +20,15 @@ public class CartItems {
     @Column(name = "cart_item_id")
     private Integer id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "book_id")
     private Books book;
+
+    private Integer quantity;
+
+    private BigDecimal subtotal;
 }

@@ -52,20 +52,21 @@ public class SecurityConfig {
                                 "/category/delete",
                                 "/book/add-book",
                                 "book/update/{id}").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/cart/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginProcessingUrl("/users/login")
                         .successHandler((request, response, authentication) ->
-                                response.getWriter().write("Login successful"))
+                                response.getWriter().write("Вход успешно выполнен"))
                         .failureHandler((request, response, exception) ->
-                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid credentials"))
+                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Неверные данные"))
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/users/logout")
                         .logoutSuccessHandler((request, response, authentication) ->
-                                response.getWriter().write("Logout successful"))
+                                response.getWriter().write("Выход успешно выполнен"))
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 )

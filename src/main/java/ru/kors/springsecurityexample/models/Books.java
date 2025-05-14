@@ -22,7 +22,7 @@ public class Books {
 
     private BigDecimal price;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "category_id")
     private Categories categories;
 
