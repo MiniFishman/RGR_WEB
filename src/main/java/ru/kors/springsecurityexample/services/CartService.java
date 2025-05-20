@@ -12,6 +12,8 @@ import ru.kors.springsecurityexample.repository.CartRepository;
 import ru.kors.springsecurityexample.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final UserService userService;
 
     private Users getCurrentUser() {
         String username = authenticationFacade.getAuthentication().getName();
@@ -150,4 +153,12 @@ public class CartService {
         cart.setTotalAmount(total);
         cartRepository.save(cart);
     }
+
+    public List<CartItems> getCartItemsForCurrentUser() {
+        Users user = getCurrentUser();
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Корзина не найдена"));
+        return cartItemRepository.findAllByCart(cart);
+    }
+
 }

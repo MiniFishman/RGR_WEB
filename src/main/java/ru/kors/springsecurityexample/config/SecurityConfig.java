@@ -2,7 +2,6 @@ package ru.kors.springsecurityexample.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -47,20 +46,32 @@ public class SecurityConfig {
                                 "/category/get-all",
                                 "/category/{id}",
                                 "/book/all-books",
-                                "/book/{id}").permitAll()
+                                "/book/{id}",
+                                "/book/image/{id}",
+                                "/register.html",
+                                "/login.html",
+                                "/books.html",
+                                "style.css").permitAll()
                         .requestMatchers("/category/add-category",
                                 "/category/delete",
                                 "/book/add-book",
-                                "book/update/{id}").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/cart/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
+                                "/book/update/{id}",
+                                "/book/delete/",
+                                "/admin.html").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/cart/**",
+                                "/cart.html").hasAnyAuthority("ROLE_ADMIN", "ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
+                        .loginPage("/login.html")
                         .loginProcessingUrl("/users/login")
                         .successHandler((request, response, authentication) ->
-                                response.getWriter().write("Вход успешно выполнен"))
-                        .failureHandler((request, response, exception) ->
-                                response.sendError(HttpStatus.UNAUTHORIZED.value(), "Неверные данные"))
+                                response.sendRedirect("/books.html")
+                        )
+                        .failureHandler((request, response, exception) -> {
+                            exception.printStackTrace();
+                            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Неверные данные");
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -94,4 +105,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

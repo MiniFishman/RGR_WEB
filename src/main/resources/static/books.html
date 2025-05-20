@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Книжный магазин</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Стили для Google Translate */
+    #google_translate_element {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      font-size: 14px;
+    }
+
+    .goog-te-combo {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      background-color: white;
+      color: #333;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .goog-te-combo:hover {
+      border-color: var(--primary-color);
+    }
+
+    .goog-te-banner-frame {
+      display: none !important;
+    }
+
+    .goog-te-gadget {
+      color: transparent !important;
+    }
+
+    .goog-te-gadget .goog-te-combo {
+      color: #333 !important;
+    }
+
+    .skiptranslate iframe {
+      display: none !important;
+    }
+
+    body {
+      top: 0 !important;
+    }
+
+    :root {
+      --primary-color: #4a6fa5;
+      --secondary-color: #166088;
+      --accent-color: #4fc3f7;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header styles */
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-icon {
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    .search-input {
+      position: absolute;
+      right: 0;
+      top: 40px;
+      width: 250px;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      border: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      display: none;
+    }
+
+    .search-input.active {
+      display: block;
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .book-card {
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .book-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .book-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+
+    .book-info {
+      padding: 1rem;
+    }
+
+    .book-title {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark-color);
+    }
+
+    .book-author {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .book-price {
+      font-weight: bold;
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .modal-book {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .modal-book-image {
+      width: 300px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .modal-book-info {
+      flex: 1;
+    }
+
+    .modal-book-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--dark-color);
+    }
+
+    .modal-book-author {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 1rem;
+    }
+
+    .modal-book-price {
+      font-size: 1.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: bold;
+    }
+
+    .modal-book-description {
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .modal-button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    .add-to-cart {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .add-to-cart:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .admin-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #eee;
+    }
+
+    .edit-button {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .edit-button:hover {
+      background-color: #3da8d8;
+    }
+
+    .delete-button {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+
+    @media (max-width: 768px) {
+      .modal-book {
+        flex-direction: column;
+      }
+
+      .modal-book-image {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+      }
+
+      .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .search-input {
+        width: 100%;
+        right: auto;
+        left: 0;
+      }
+
+      #google_translate_element {
+        bottom: 70px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-container">
+    <a href="/" class="logo">Книжный магазин</a>
+    <div class="nav-right">
+      <button class="nav-button" id="cart-button">
+        <i class="fas fa-shopping-cart"></i>
+        Корзина
+      </button>
+      <button class="nav-button" id="admin-button" style="display: none;">
+        <i class="fas fa-cog"></i>
+        Панель администратора
+      </button>
+      <div class="search-container">
+        <i class="fas fa-search search-icon" id="search-icon"></i>
+        <input type="text" class="search-input" placeholder="Поиск по названию..." id="search-input">
+      </div>
+      <button class="nav-button" id="logout-button">
+        <i class="fas fa-sign-out-alt"></i>
+        Выйти
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Каталог книг</h1>
+  <div class="books-grid" id="books-container">
+  </div>
+</main>
+
+<div id="google_translate_element"></div>
+
+<footer>
+  <div class="footer-content">
+    <p>© 2025 Книжный магазин. Все права защищены.</p>
+  </div>
+</footer>
+
+<div class="modal" id="book-modal">
+  <div class="modal-content">
+    <span class="close-modal" id="close-modal">&times;</span>
+    <div class="modal-book">
+      <img src="" alt="Обложка книги" class="modal-book-image" id="modal-book-image">
+      <div class="modal-book-info">
+        <h2 class="modal-book-title" id="modal-book-title"></h2>
+        <p class="modal-book-author" id="modal-book-author"></p>
+        <p class="modal-book-price" id="modal-book-price"></p>
+        <p class="modal-book-description" id="modal-book-description"></p>
+
+        <div class="modal-actions">
+          <button class="modal-button add-to-cart">Добавить в корзину</button>
+        </div>
+
+        <div class="admin-actions" id="admin-actions" style="display: none;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Скрипт Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'ru',
+        includedLanguages: 'ru,en,es,fr,de,it,pt,zh-CN,ja,ko,ar',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+
+      // Убираем лишние элементы
+      var googleBanner = document.querySelector('.goog-te-banner-frame');
+      if (googleBanner) googleBanner.style.display = 'none';
+
+      // Улучшаем внешний вид после загрузки
+      setTimeout(function() {
+        var googleSelect = document.querySelector('.goog-te-combo');
+        if (googleSelect) {
+          googleSelect.style.padding = '6px 12px';
+          googleSelect.style.borderRadius = '20px';
+          googleSelect.style.border = '1px solid #ddd';
+        }
+      }, 500);
+    }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let isAdmin = false;
+
+      fetch('/users/role')
+              .then(response => response.text())
+              .then(role => {
+                if (role === 'ROLE_ADMIN') {
+                  isAdmin = true;
+                  document.getElementById('admin-button').style.display = 'flex';
+                }
+              })
+              .catch(err => console.error('Ошибка при получении роли пользователя:', err));
+
+      if (isAdmin) {
+        document.getElementById('admin-button').style.display = 'flex';
+      }
+
+      const searchIcon = document.getElementById('search-icon');
+      const searchInput = document.getElementById('search-input');
+      const searchContainer = document.querySelector('.search-container');
+
+      searchIcon.addEventListener('click', function() {
+        searchInput.classList.toggle('active');
+        if (searchInput.classList.contains('active')) {
+          searchInput.focus();
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!searchContainer.contains(e.target) && e.target !== searchIcon) {
+          searchInput.classList.remove('active');
+        }
+      });
+
+      const booksContainer = document.getElementById('books-container');
+      let booksData = [];
+
+      async function loadBooks() {
+        try {
+          const response = await fetch('/book/all-books');
+          if (!response.ok) throw new Error('Ошибка при загрузке книг');
+          const books = await response.json();
+
+          booksData = books.map(book => ({
+            id: book.id,
+            title: book.title,
+            author: book.author,
+            description: book.description,
+            price: book.price,
+            imageUrl: `/book/image/${book.id}`
+          }));
+
+          displayBooks(booksData);
+        } catch (error) {
+          console.error('Ошибка загрузки книг:', error);
+          booksContainer.innerHTML = '<p>Не удалось загрузить книги.</p>';
+        }
+      }
+
+      function displayBooks(books) {
+        booksContainer.innerHTML = '';
+
+        if (books.length === 0) {
+          booksContainer.innerHTML = '<p>Книги не найдены.</p>';
+          return;
+        }
+
+        books.forEach(book => {
+          const bookCard = document.createElement('div');
+          bookCard.className = 'book-card';
+          bookCard.dataset.id = book.id;
+
+          const bookImage = document.createElement('img');
+          bookImage.src = book.imageUrl;
+          bookImage.alt = book.title;
+          bookImage.className = 'book-image';
+          bookImage.onerror = function () {
+            this.src = 'https://via.placeholder.com/250x300?text=Нет+изображения';
+          };
+
+          const bookInfo = document.createElement('div');
+          bookInfo.className = 'book-info';
+          bookInfo.innerHTML = `
+          <h3 class="book-title">${book.title}</h3>
+          <p class="book-author">${book.author}</p>
+          <p class="book-price">${book.price} ₽</p>
+        `;
+
+          bookCard.appendChild(bookImage);
+          bookCard.appendChild(bookInfo);
+
+          bookCard.addEventListener('click', () => openBookModal(book));
+
+          booksContainer.appendChild(bookCard);
+        });
+      }
+
+      searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredBooks = booksData.filter(book =>
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.author.toLowerCase().includes(searchTerm)
+        );
+        displayBooks(filteredBooks);
+      });
+
+      const modal = document.getElementById('book-modal');
+      const closeModal = document.getElementById('close-modal');
+
+      let selectedBookId = null;
+
+      function openBookModal(book) {
+        selectedBookId = book.id;
+
+        document.getElementById('modal-book-title').textContent = book.title;
+        document.getElementById('modal-book-author').textContent = book.author;
+        document.getElementById('modal-book-price').textContent = `${book.price} ₽`;
+        document.getElementById('modal-book-description').textContent = book.description;
+
+        const modalImg = document.getElementById('modal-book-image');
+        modalImg.src = book.imageUrl;
+        modalImg.onerror = function () {
+          this.src = 'https://via.placeholder.com/300x400?text=Нет+обложки';
+        };
+
+        if (isAdmin) {
+          document.getElementById('admin-actions').style.display = 'flex';
+        } else {
+          document.getElementById('admin-actions').style.display = 'none';
+        }
+
+        modal.style.display = 'block';
+      }
+
+      closeModal.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+
+      window.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+
+      document.getElementById('admin-button').addEventListener('click', function() {
+        window.location.href = '/admin.html';
+      });
+
+      document.getElementById('cart-button').addEventListener('click', function() {
+        window.location.href = '/cart.html';
+      });
+
+      document.getElementById('logout-button').addEventListener('click', function() {
+        fetch(`/users/logout`)
+        window.location.href = '/login.html';
+      });
+
+      document.querySelector('.add-to-cart').addEventListener('click', function() {
+        if (!selectedBookId) {
+          alert('Ошибка: книга не выбрана');
+          return;
+        }
+
+        addToCart(selectedBookId);
+      });
+
+      async function addToCart(bookId) {
+        try {
+          let response = await fetch(`/cart/add-item-to-cart?bookId=${bookId}`, {
+            method: 'POST'
+          });
+          if (response.status === 404 || response.status === 400) {
+            // Корзина возможно не существует, создаём
+            await createCart();
+            // Повторяем попытку добавить товар
+            response = await fetch(`/cart/add-item-to-cart?bookId=${bookId}`, {
+              method: 'POST'
+            });
+          }
+          if (!response.ok) throw new Error('Ошибка при добавлении в корзину');
+
+          alert('Книга добавлена в корзину');
+        } catch (error) {
+          console.error(error);
+          alert('Не удалось добавить книгу в корзину');
+        }
+      }
+
+      // Функция создания корзины
+      async function createCart() {
+        const response = await fetch('/cart/create', { method: 'POST' });
+        if (!response.ok) {
+          throw new Error('Ошибка при создании корзины');
+        }
+        return await response.json();
+      }
+
+      loadBooks();
+    });
+  </script>
+</body>
+</html>

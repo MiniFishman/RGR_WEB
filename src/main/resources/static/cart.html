@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина - Книжный магазин</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4a6fa5;
+      --secondary-color: #166088;
+      --accent-color: #4fc3f7;
+      --light-color: #f8f9fa;
+      --dark-color: #343a40;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header styles */
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-button {
+      background-color: transparent;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .nav-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Main content */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .cart-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-title {
+      font-size: 1.5rem;
+      color: var(--dark-color);
+    }
+
+    .cart-total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .cart-items {
+      margin-bottom: 2rem;
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 1.5rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-image {
+      width: 100px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .cart-item-details {
+      flex: 1;
+    }
+
+    .cart-item-title {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark-color);
+    }
+
+    .cart-item-author {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-price {
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-subtotal {
+      font-weight: bold;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .remove-button {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .remove-button:hover {
+      background-color: #c82333;
+    }
+
+    .clear-cart-button {
+      background-color: var(--danger-color);
+      color: white;
+      margin-right: auto;
+    }
+
+    .clear-cart-button:hover {
+      background-color: #c82333;
+    }
+
+    .checkout-button {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .checkout-button:hover {
+      background-color: #218838;
+    }
+
+    .cart-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 3rem 0;
+      color: #666;
+    }
+
+    .empty-cart-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #ccc;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--dark-color);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .cart-item {
+        flex-direction: column;
+      }
+
+      .cart-item-image {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+      }
+
+      .cart-actions {
+        flex-direction: column;
+      }
+
+      .clear-cart-button {
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-container">
+    <a href="/" class="logo">Книжный магазин</a>
+    <div class="nav-right">
+      <button class="nav-button" id="back-to-books-button">
+        <i class="fas fa-book"></i>
+        К списку книг
+      </button>
+      <button class="nav-button" id="admin-button" style="display: none;">
+        <i class="fas fa-cog"></i>
+        Панель администратора
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1>Корзина</h1>
+  <div class="cart-container">
+    <div class="cart-header">
+      <h2 class="cart-title">Ваши товары</h2>
+      <div class="cart-total" id="cart-total">Итого: 0 ₽</div>
+    </div>
+
+    <div class="cart-items" id="cart-items">
+      <!-- Товары будут добавляться динамически -->
+      <div class="empty-cart" id="empty-cart">
+        <div class="empty-cart-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <p>Ваша корзина пуста</p>
+      </div>
+    </div>
+
+    <div class="cart-actions" id="cart-actions" style="display: none;">
+      <button class="action-button clear-cart-button" id="clear-cart-button">
+        <i class="fas fa-trash"></i>
+        Очистить корзину
+      </button>
+      <button class="action-button checkout-button" id="checkout-button">
+        <i class="fas fa-credit-card"></i>
+        Оформить заказ
+      </button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <p>© 2025 Книжный магазин. Все права защищены.</p>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Проверка роли администратора
+    let isAdmin = false;
+    fetch('/users/role')
+            .then(response => response.text())
+            .then(role => {
+              if (role === 'ROLE_ADMIN') {
+                isAdmin = true;
+                document.getElementById('admin-button').style.display = 'flex';
+              }
+            })
+            .catch(err => console.error('Ошибка при получении роли пользователя:', err));
+
+    // Кнопка администратора
+    document.getElementById('admin-button').addEventListener('click', function() {
+      window.location.href = '/admin.html';
+    });
+
+    // Кнопка корзины
+    document.getElementById('back-to-books-button').addEventListener('click', function() {
+      window.location.href = '/books.html';
+    });
+
+    // Загрузка товаров в корзине
+    async function loadCartItems() {
+      try {
+        const response = await fetch('/cart/items');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Ошибка при загрузке корзины');
+        }
+
+        // Проверяем, что ответ содержит данные
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('Неверный формат ответа от сервера');
+        }
+
+        const cartItems = await response.json();
+        displayCartItems(cartItems);
+      } catch (error) {
+        console.error('Ошибка загрузки корзины:', error);
+        // Не показываем alert, если корзина просто пуста
+        if (!error.message.includes('Корзина не найдена')) {
+          alert(`Ошибка загрузки корзины: ${error.message}`);
+        }
+      }
+    }
+
+    // Отображение товаров в корзине
+    function displayCartItems(items) {
+      const cartItemsContainer = document.getElementById('cart-items');
+      const emptyCartElement = document.getElementById('empty-cart');
+      const cartActionsElement = document.getElementById('cart-actions');
+      const cartTotalElement = document.getElementById('cart-total');
+
+      if (items.length === 0) {
+        emptyCartElement.style.display = 'block';
+        cartActionsElement.style.display = 'none';
+        cartTotalElement.textContent = 'Итого: 0 ₽';
+        return;
+      }
+
+      emptyCartElement.style.display = 'none';
+      cartActionsElement.style.display = 'flex';
+
+      cartItemsContainer.innerHTML = '';
+
+      let totalAmount = 0;
+
+      items.forEach(item => {
+        const book = item.book || {}; // если есть вложенный объект book
+        const title = item.title || book.title || 'Неизвестно';
+        const author = item.author || book.author || 'Не указан';
+        const price = item.price !== undefined ? item.price : book.price || 0;
+        const quantity = item.quantity || 0;
+        const subtotal = item.subtotal || (price * quantity);
+
+        totalAmount += subtotal;
+
+        const cartItemElement = document.createElement('div');
+        cartItemElement.className = 'cart-item';
+        cartItemElement.dataset.id = item.bookId;
+
+        cartItemElement.innerHTML = `
+        <img src="/book/image/${item.bookId}" alt="${item.bookTitle}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/100x120?text=Нет+изображения'">
+        <div class="cart-item-details">
+          <h3 class="cart-item-title">${item.bookTitle}</h3>
+          <p class="cart-item-author">Автор: ${item.bookAuthor || 'Не указан'}</p>
+          <p class="cart-item-price">Цена: ${item.bookPrice} ₽</p>
+          <p class="cart-item-quantity">
+            <span>Количество: ${item.quantity}</span>
+          </p>
+          <p class="cart-item-subtotal">Сумма: ${item.subtotal} ₽</p>
+          <div class="cart-item-actions">
+            <button class="action-button remove-button remove-one-button" data-id="${item.bookId}">
+              <i class="fas fa-minus"></i>
+              Удалить 1 шт.
+            </button>
+            <button class="action-button remove-button remove-all-button" data-id="${item.bookId}">
+              <i class="fas fa-trash"></i>
+              Удалить все
+            </button>
+          </div>
+        </div>
+      `;
+
+        cartItemsContainer.appendChild(cartItemElement);
+      });
+
+      cartTotalElement.textContent = `Итого: ${totalAmount} ₽`;
+
+      document.querySelectorAll('.remove-one-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const bookId = this.dataset.id;
+          removeItemFromCart(bookId, 1);
+        });
+      });
+
+      document.querySelectorAll('.remove-all-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const bookId = this.dataset.id;
+          removeItemCompletelyFromCart(bookId);
+        });
+      });
+    }
+
+    // Удаление товара из корзины (частичное)
+    async function removeItemFromCart(bookId, quantity) {
+      try {
+        const response = await fetch(`/cart/delete-item?bookId=${bookId}&quantityToRemove=${quantity}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          // Если статус не 2xx, пытаемся прочитать текст ошибки
+          const errorText = await response.text();
+          throw new Error(errorText || 'Ошибка при удалении товара');
+        }
+
+        // Обновляем корзину после удаления
+        location.reload(true);
+      } catch (error) {
+        location.reload(true);
+      }
+    }
+
+// Полное удаление товара из корзины
+    async function removeItemCompletelyFromCart(bookId) {
+      try {
+        const response = await fetch(`/cart/delete-full-one-item?bookId=${bookId}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || 'Ошибка при удалении товара');
+        }
+
+        // Обновляем корзину после удаления
+        location.reload(true);
+      } catch (error) {
+        location.reload(true);
+      }
+    }
+
+    // Очистка корзины
+    document.getElementById('clear-cart-button').addEventListener('click', async function() {
+      if (confirm('Вы уверены, что хотите очистить корзину?')) {
+        try {
+          const response = await fetch('/cart/clear', {
+            method: 'POST'
+          });
+
+          if (!response.ok) throw new Error('Ошибка при очистке корзины');
+
+          // Обновляем корзину после очистки
+          location.reload(true);
+        } catch (error) {
+          location.reload(true);
+        }
+      }
+    });
+
+    // Оформление заказа (заглушка)
+    document.getElementById('checkout-button').addEventListener('click', function() {
+      alert('Функция оформления заказа будет реализована позже');
+    });
+
+    // Загружаем корзину при загрузке страницы
+    loadCartItems();
+  });
+</script>
+</body>
+</html>

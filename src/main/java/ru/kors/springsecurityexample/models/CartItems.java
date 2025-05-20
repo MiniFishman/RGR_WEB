@@ -20,11 +20,11 @@ public class CartItems {
     @Column(name = "cart_item_id")
     private Integer id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "book_id")
     private Books book;
 

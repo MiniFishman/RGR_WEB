@@ -1,5 +1,6 @@
 package ru.kors.springsecurityexample.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,17 +13,21 @@ import ru.kors.springsecurityexample.repository.UserRepository;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
-    private final UserRepository repository;
 
-    public MyUserDetailsService(UserRepository repository) {
-        this.repository = repository;
-    }
+    private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        Optional<Users> user = repository.findByLogin(login);
-        return user.map(MyUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException(login + " not found"));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = userRepository.findByLogin(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден: " + username));
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getLogin())
+                .password(user.getPassword())
+                .authorities(user.getRole()) // например, "ROLE_ADMIN" или "ROLE_USER"
+                .build();
     }
 }
+

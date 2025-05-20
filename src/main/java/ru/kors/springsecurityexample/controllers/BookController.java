@@ -65,4 +65,27 @@ public class BookController {
     public Optional<Books> getBookById(@PathVariable Integer id) {
         return bookService.getBookById(id);
     }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public void deleteBookById(@PathVariable Integer id) {
+        bookService.deleteBook(id);
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> getBookImage(@PathVariable Integer id) {
+        Optional<Books> bookOptional = bookService.getBookById(id);
+        if (bookOptional.isPresent()) {
+            byte[] imageData = bookOptional.get().getImage();
+            if (imageData != null) {
+                return ResponseEntity
+                        .ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(imageData);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+
 }
