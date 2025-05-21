@@ -404,6 +404,10 @@
         <i class="fas fa-sign-out-alt"></i>
         Выйти
       </button>
+      <button class="nav-button" id="login-button">
+        <i class="fas fa-sign-out-alt"></i>
+        Войти
+      </button>
     </div>
   </div>
 </header>
@@ -442,7 +446,7 @@
       </div>
     </div>
   </div>
-
+</div>
   <!-- Скрипт Google Translate -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
@@ -471,40 +475,76 @@
   <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function () {
       let isAdmin = false;
 
-      fetch('/users/role')
-              .then(response => response.text())
-              .then(role => {
-                if (role === 'ROLE_ADMIN') {
-                  isAdmin = true;
-                  document.getElementById('admin-button').style.display = 'flex';
-                }
-              })
-              .catch(err => console.error('Ошибка при получении роли пользователя:', err));
-
-      if (isAdmin) {
-        document.getElementById('admin-button').style.display = 'flex';
+      // Функция обновления роли и отображения кнопки администратора
+      async function updateRole() {
+        try {
+          const response = await fetch('/users/role');
+          if (!response.ok) throw new Error('Ошибка при получении роли');
+          const role = await response.text();
+          isAdmin = (role === 'ROLE_ADMIN');
+          document.getElementById('admin-button').style.display = isAdmin ? 'flex' : 'none';
+        } catch (err) {
+          console.error('Ошибка при получении роли пользователя:', err);
+          isAdmin = false;
+          document.getElementById('admin-button').style.display = 'none';
+        }
       }
 
+      // Проверка аутентификации
+      async function checkAuth() {
+        try {
+          const response = await fetch('/users/current', {method: 'GET'});
+          if (response.ok) {
+            const text = await response.text();
+            if (text && !text.includes('anonymousUser')) {
+              return true;
+            }
+          }
+        } catch (e) {
+          console.error(e);
+        }
+        return false;
+      }
+
+      // Обновление кнопок входа/выхода
+      function updateAuthButtons(isAuthenticated) {
+        document.getElementById('login-button').style.display = isAuthenticated ? 'none' : 'flex';
+        document.getElementById('logout-button').style.display = isAuthenticated ? 'flex' : 'none';
+      }
+
+      // Начальная инициализация: проверка аутентификации и роли
+      const isAuthenticated = await checkAuth();
+      updateAuthButtons(isAuthenticated);
+
+      if (isAuthenticated) {
+        await updateRole();
+      } else {
+        isAdmin = false;
+        document.getElementById('admin-button').style.display = 'none';
+      }
+
+      // Поиск элементов для поиска
       const searchIcon = document.getElementById('search-icon');
       const searchInput = document.getElementById('search-input');
       const searchContainer = document.querySelector('.search-container');
 
-      searchIcon.addEventListener('click', function() {
+      searchIcon.addEventListener('click', function () {
         searchInput.classList.toggle('active');
         if (searchInput.classList.contains('active')) {
           searchInput.focus();
         }
       });
 
-      document.addEventListener('click', function(e) {
+      document.addEventListener('click', function (e) {
         if (!searchContainer.contains(e.target) && e.target !== searchIcon) {
           searchInput.classList.remove('active');
         }
       });
 
+      // Загрузка книг
       const booksContainer = document.getElementById('books-container');
       let booksData = [];
 
@@ -554,10 +594,10 @@
           const bookInfo = document.createElement('div');
           bookInfo.className = 'book-info';
           bookInfo.innerHTML = `
-          <h3 class="book-title">${book.title}</h3>
-          <p class="book-author">${book.author}</p>
-          <p class="book-price">${book.price} ₽</p>
-        `;
+        <h3 class="book-title">${book.title}</h3>
+        <p class="book-author">${book.author}</p>
+        <p class="book-price">${book.price} ₽</p>
+      `;
 
           bookCard.appendChild(bookImage);
           bookCard.appendChild(bookInfo);
@@ -568,7 +608,7 @@
         });
       }
 
-      searchInput.addEventListener('input', function(e) {
+      searchInput.addEventListener('input', function (e) {
         const searchTerm = e.target.value.toLowerCase();
         const filteredBooks = booksData.filter(book =>
                 book.title.toLowerCase().includes(searchTerm) ||
@@ -577,9 +617,9 @@
         displayBooks(filteredBooks);
       });
 
+      // Модальное окно книги
       const modal = document.getElementById('book-modal');
       const closeModal = document.getElementById('close-modal');
-
       let selectedBookId = null;
 
       function openBookModal(book) {
@@ -596,44 +636,58 @@
           this.src = 'https://via.placeholder.com/300x400?text=Нет+обложки';
         };
 
-        if (isAdmin) {
-          document.getElementById('admin-actions').style.display = 'flex';
-        } else {
-          document.getElementById('admin-actions').style.display = 'none';
-        }
+        // Показывать админские действия, если админ
+        document.getElementById('admin-actions').style.display = isAdmin ? 'flex' : 'none';
 
         modal.style.display = 'block';
       }
 
-      closeModal.addEventListener('click', function() {
+      closeModal.addEventListener('click', function () {
         modal.style.display = 'none';
       });
 
-      window.addEventListener('click', function(e) {
+      window.addEventListener('click', function (e) {
         if (e.target === modal) {
           modal.style.display = 'none';
         }
       });
 
-      document.getElementById('admin-button').addEventListener('click', function() {
+      // Кнопки навигации
+      document.getElementById('admin-button').addEventListener('click', function () {
         window.location.href = '/admin.html';
       });
 
-      document.getElementById('cart-button').addEventListener('click', function() {
+      document.getElementById('cart-button').addEventListener('click', function () {
         window.location.href = '/cart.html';
       });
 
-      document.getElementById('logout-button').addEventListener('click', function() {
-        fetch(`/users/logout`)
+      // Выход из системы
+      document.getElementById('logout-button').addEventListener('click', async function () {
+        try {
+          const response = await fetch('/users/logout', {method: 'POST'});
+          if (!response.ok) throw new Error('Ошибка выхода');
+
+          // После выхода обновляем состояние
+          updateAuthButtons(false);
+          isAdmin = false;
+          document.getElementById('admin-button').style.display = 'none';
+        } catch (err) {
+          console.error(err);
+          alert('Не удалось выйти из системы');
+        }
+      });
+
+      // Переход на страницу входа
+      document.getElementById('login-button').addEventListener('click', function () {
         window.location.href = '/login.html';
       });
 
-      document.querySelector('.add-to-cart').addEventListener('click', function() {
+      // Добавление в корзину
+      document.querySelector('.add-to-cart').addEventListener('click', function () {
         if (!selectedBookId) {
           alert('Ошибка: книга не выбрана');
           return;
         }
-
         addToCart(selectedBookId);
       });
 
@@ -643,9 +697,7 @@
             method: 'POST'
           });
           if (response.status === 404 || response.status === 400) {
-            // Корзина возможно не существует, создаём
             await createCart();
-            // Повторяем попытку добавить товар
             response = await fetch(`/cart/add-item-to-cart?bookId=${bookId}`, {
               method: 'POST'
             });
@@ -659,15 +711,15 @@
         }
       }
 
-      // Функция создания корзины
       async function createCart() {
-        const response = await fetch('/cart/create', { method: 'POST' });
+        const response = await fetch('/cart/create', {method: 'POST'});
         if (!response.ok) {
           throw new Error('Ошибка при создании корзины');
         }
         return await response.json();
       }
 
+      // Загрузка книг при старте
       loadBooks();
     });
   </script>
